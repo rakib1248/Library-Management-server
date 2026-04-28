@@ -1,0 +1,143 @@
+// // This is your Prisma schema file,
+// // learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// // Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+
+// 1. Enums for Enforcing Data Integrity
+enum Role {
+  ADMIN
+  SELLER
+  STUDENT
+}
+
+enum TransactionType {
+  RENT
+  PURCHASE
+}
+
+enum TransactionStatus {
+  PENDING
+  ACTIVE      // Used when a book is currently rented out
+  RETURNED    // Used when a rented book is returned
+  COMPLETED   // Used for successful purchases
+  CANCELLED
+}
+
+// 2. Unified User Model for Authentication & Roles
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      Role     @default(STUDENT) // Default role is Student
+
+  // Relations
+  sessions     Session[]
+  // Transactions made by the student
+  transactions Transaction[] @relation("StudentTransactions") 
+  // Transactions handled/approved by a seller or admin
+  processed    Transaction[] @relation("ProcessedTransactions") 
+  authors       Author?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 3. Active Session Tracking (Device & IP)
+model Session {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceOs    String?  
+  browser     String?  
+  ipAddress   String?  
+  lastActive  DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+// 4. Core Library Models
+model Author {
+  id        String   @id @default(uuid())
+  userId    String @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  bio       String?
+  books     Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  books       Book[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Book {
+  id          String   @id @default(uuid())
+  title       String
+  isbn        String?  @unique
+  description String?  @db.Text
+  
+  // Pricing & Inventory (Decimal is standard for currency in Postgres)
+  purchasePrice Decimal  @db.Decimal(10, 2)
+  rentPrice     Decimal  @db.Decimal(10, 2)
+  stockCount    Int      @default(0)
+
+  authorId    String
+  author      Author   @relation(fields: [authorId], references: [id])
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  transactions Transaction[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+
+// 5. Unified Transaction Model for both Rent and Purchase
+model Transaction {
+  id              String            @id @default(uuid())
+  
+  // The student who is renting/buying
+  studentId       String
+  student         User              @relation("StudentTransactions", fields: [studentId], references: [id])
+  
+  // The seller or admin who processed/approved it
+  processedById   String?
+  processedBy     User?             @relation("ProcessedTransactions", fields: [processedById], references: [id])
+
+  bookId          String
+  book            Book              @relation(fields: [bookId], references: [id])
+
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  
+  // Snapshot of the price at the time of transaction (important if prices change later)
+  amount          Decimal           @db.Decimal(10, 2)
+
+  // Rental specific fields
+  rentStartDate   DateTime?
+  dueDate         DateTime?
+  returnedAt      DateTime? // If not null, the book has been returned
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
