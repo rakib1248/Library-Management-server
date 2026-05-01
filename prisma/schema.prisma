@@ -4,8 +4,8 @@
 // // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
+ 
 }
 
 datasource db {
@@ -34,6 +34,12 @@ enum TransactionStatus {
   CANCELLED
 }
 
+enum AuthorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // 2. Unified User Model for Authentication & Roles
 model User {
   id        String   @id @default(uuid())
@@ -60,6 +66,7 @@ model Session {
   id          String   @id @default(uuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
   deviceOs    String?  
   browser     String?  
   ipAddress   String?  
@@ -72,6 +79,7 @@ model Author {
   id        String   @id @default(uuid())
   userId    String @unique
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    AuthorStatus @default(PENDING)
   name      String
   bio       String?
   books     Book[]
@@ -91,14 +99,14 @@ model Category {
 model Book {
   id          String   @id @default(uuid())
   title       String
-  isbn        String?  @unique
+ 
   description String?  @db.Text
   
   // Pricing & Inventory (Decimal is standard for currency in Postgres)
   purchasePrice Decimal  @db.Decimal(10, 2)
   rentPrice     Decimal  @db.Decimal(10, 2)
   stockCount    Int      @default(0)
-
+  isbn          String   @unique
   authorId    String
   author      Author   @relation(fields: [authorId], references: [id])
   categoryId  String
