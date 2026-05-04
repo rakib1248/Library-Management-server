@@ -55,6 +55,12 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: pnpm run build
 
+      - name: Create temporary .env file
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:admin@db:5432/library?schema=public" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "PORT=5000" >> .env
+
       - name: Run Docker Compose Test
         # বিল্ড শেষে আমরা ডকার কম্পোজ রান করে চেক করি
         run: docker compose up --build -d
