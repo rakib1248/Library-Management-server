@@ -29,8 +29,8 @@ enum TransactionType {
 enum TransactionStatus {
   PENDING
   ACTIVE      // Used when a book is currently rented out
-  RETURNED    // Used when a rented book is returned
-  COMPLETED   // Used for successful purchases
+  RETURNED   
+  COMPLETED   
   CANCELLED
 }
 
@@ -40,20 +40,19 @@ enum AuthorStatus {
   REJECTED
 }
 
-// 2. Unified User Model for Authentication & Roles
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
   name      String
   phone     String?
-  role      Role     @default(STUDENT) // Default role is Student
+  role      Role     @default(STUDENT) 
 
-  // Relations
+
   sessions     Session[]
-  // Transactions made by the student
+
   transactions Transaction[] @relation("StudentTransactions") 
-  // Transactions handled/approved by a seller or admin
   processed    Transaction[] @relation("ProcessedTransactions") 
   authors       Author?
   
@@ -61,7 +60,7 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-// 3. Active Session Tracking (Device & IP)
+
 model Session {
   id          String   @id @default(uuid())
   userId      String
@@ -74,7 +73,7 @@ model Session {
   createdAt   DateTime @default(now())
 }
 
-// 4. Core Library Models
+
 model Author {
   id        String   @id @default(uuid())
   userId    String @unique
@@ -102,7 +101,7 @@ model Book {
  
   description String?  @db.Text
   
-  // Pricing & Inventory (Decimal is standard for currency in Postgres)
+
   purchasePrice Decimal  @db.Decimal(10, 2)
   rentPrice     Decimal  @db.Decimal(10, 2)
   stockCount    Int      @default(0)

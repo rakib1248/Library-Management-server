@@ -9,7 +9,7 @@ import { TransactionStatus, TransactionType } from '@prisma/client';
 
 @Injectable()
 export class BookingService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async buyBook(bookId: string, userId: string) {
     return this.prisma.$transaction(async (tx) => {
@@ -76,8 +76,6 @@ export class BookingService {
             id: true,
             title: true,
             author: true,
-
-
           },
         },
       },

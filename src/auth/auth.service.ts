@@ -145,7 +145,7 @@ export class AuthService {
           select: {
             amount: true,
             status: true,
-            type: true,
+
             rentStartDate: true,
 
             book: { select: { title: true } },

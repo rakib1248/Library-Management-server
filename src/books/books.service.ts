@@ -15,7 +15,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class BooksService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createBookDto: CreateBookDto, user: AuthUser) {
     const author = await this.prisma.author.findUnique({
@@ -145,10 +145,8 @@ export class BooksService {
   async getMyBooks(user: AuthUser) {
     const userId = user.sub;
 
-
     const author = await this.prisma.author.findUniqueOrThrow({
       where: { userId },
-
     });
 
     return await this.prisma.book.findMany({

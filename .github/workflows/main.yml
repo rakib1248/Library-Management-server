@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    # ব্রাঞ্চের নাম আপনার 'main' বা 'master' যা আছে তা দিন। স্ক্রিনশট অনুযায়ী 'main' মনে হচ্ছে।
+  
     branches: [main]
   pull_request:
     branches: [main]
@@ -22,7 +22,7 @@ jobs:
           version: 9
 
       - name: Setup Node.js
-        # এই লাইনটি ঠিক করে 'setup-node' করা হয়েছে
+ 
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -37,7 +37,7 @@ jobs:
       - name: Build project
         env:
           DATABASE_URL: postgresql://postgres:admin@localhost:5432/library?schema=public
-          # গিটহাব সিক্রেটস এ JWT_SECRET অবশ্যই যোগ করে নেবেন
+  
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: pnpm run build
 
@@ -48,7 +48,7 @@ jobs:
           echo "PORT=5000" >> .env
 
       - name: Run Docker Compose Test
-        # বিল্ড শেষে আমরা ডকার কম্পোজ রান করে চেক করি
+  
         run: docker compose up --build -d
 
       - name: Login to Docker Hub
@@ -62,5 +62,5 @@ jobs:
         with:
           context: .
           push: true
-          # আপনার ইউজারনেম অনুযায়ী ট্যাগ
+
           tags: devrakib1248/library-server:latest
