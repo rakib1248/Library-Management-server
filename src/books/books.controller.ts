@@ -20,7 +20,7 @@ import { Role } from '@prisma/client';
 
 @Controller('books')
 export class BooksController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(private readonly booksService: BooksService) { }
 
   @Post()
   @UseGuards(AuthGuard)
@@ -55,5 +55,12 @@ export class BooksController {
   @Roles(Role.SELLER)
   remove(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.booksService.remove(id, user);
+  }
+
+  @Get('/seller/my-books')
+  @UseGuards(AuthGuard)
+  @Roles(Role.SELLER)
+  getMyBooks(@CurrentUser() user: AuthUser) {
+    return this.booksService.getMyBooks(user);
   }
 }

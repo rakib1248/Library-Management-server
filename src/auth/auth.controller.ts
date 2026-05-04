@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  UseGuards,
+  Req,
+  Get,
+} from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import {
@@ -7,7 +15,7 @@ import {
   RegisterAuthDto,
 } from './dto/create-auth.dto';
 
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { AuthGuard } from './guards/auth.guard';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '@prisma/client';
@@ -21,9 +29,10 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() loginDto: LoginAuthDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const result = await this.authService.login(loginDto);
+    const result = await this.authService.login(loginDto, req);
 
     response.cookie('accessToken', result.accessToken, {
       httpOnly: true,
@@ -50,4 +59,34 @@ export class AuthController {
   async authoe(@Body() author: AuthorDto, @CurrentUser() user: AuthUser) {
     return await this.authService.authorCreate(author, user.sub);
   }
+
+  @Get('my-profile')
+  @UseGuards(AuthGuard)
+  async getMyProfile(@CurrentUser() user: AuthUser) {
+    return await this.authService.getMyProfile(user.sub);
+  }
+
+  @Get('my-session')
+  @UseGuards(AuthGuard)
+  async getMySession(@CurrentUser() user: AuthUser) {
+    return await this.authService.getMySession(user.sub);
+  }
+
+  // @Get('my-session/:sessionId')
+  // @UseGuards(AuthGuard)
+  // async getSingleSession(@Param('sessionId') sessionId: string) {
+  //   return await this.authService.getSingleSession(sessionId);
+  // }
+
+  // @Post('logout')
+  // @UseGuards(AuthGuard)
+  // async logout(@CurrentUser() user: AuthUser) {
+  //   return await this.authService.logout(user.sessionId);
+  // }
+
+  // @Post('logout-all')
+  // @UseGuards(AuthGuard)
+  // async logoutAll(@CurrentUser() user: AuthUser) {
+  //   return await this.authService.logoutAll(user.sub);
+  // }
 }

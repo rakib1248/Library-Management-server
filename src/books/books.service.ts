@@ -15,7 +15,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class BooksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createBookDto: CreateBookDto, user: AuthUser) {
     const author = await this.prisma.author.findUnique({
@@ -47,9 +47,32 @@ export class BooksService {
   }
 
   async findAll() {
-    return await this.prisma.book.findMany();
-  }
+    return await this.prisma.book.findMany({
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        purchasePrice: true,
+        rentPrice: true,
+        stockCount: true,
+        isbn: true,
+        authorId: true,
+        categoryId: true,
 
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
   async findOne(id: string) {
     return await this.prisma.book.findUnique({ where: { id } });
   }
@@ -117,5 +140,42 @@ export class BooksService {
       }
       throw new InternalServerErrorException('Failed to update book');
     }
+  }
+
+  async getMyBooks(user: AuthUser) {
+    const userId = user.sub;
+
+
+    const author = await this.prisma.author.findUniqueOrThrow({
+      where: { userId },
+
+    });
+
+    return await this.prisma.book.findMany({
+      where: { authorId: author.id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        purchasePrice: true,
+        rentPrice: true,
+        stockCount: true,
+        isbn: true,
+        authorId: true,
+        categoryId: true,
+
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
   }
 }

@@ -62,6 +62,7 @@ export class LoginAuthDto {
   deviceOs?: string;
   browser?: string;
   ipAddress?: string;
+  location?: string;
 }
 
 export class AuthorDto {

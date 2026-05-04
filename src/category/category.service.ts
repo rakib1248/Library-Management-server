@@ -11,7 +11,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class CategoryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createCategoryDto: CreateCategoryDto) {
     try {
       return await this.prisma.category.create({
