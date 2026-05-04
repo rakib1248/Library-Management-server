@@ -58,3 +58,4 @@ jobs:
       - name: Run Docker Compose Test
         # বিল্ড শেষে আমরা ডকার কম্পোজ রান করে চেক করি
         run: docker compose up --build -d
+
