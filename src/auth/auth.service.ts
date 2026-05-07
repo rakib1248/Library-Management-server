@@ -27,7 +27,7 @@ export class AuthService {
 
   async login(loginAuthDto: LoginAuthDto, req: Request) {
     const { email, password } = loginAuthDto;
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { email } });
     if (!user) throw new UnauthorizedException('User not found');
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new UnauthorizedException('Wrong password');
@@ -160,6 +160,14 @@ export class AuthService {
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async getSingleSession(sessionId: string) {
+    const mySession = await this.prisma.session.findUniqueOrThrow({
+      where: { id: sessionId },
+    });
+
+    return mySession;
   }
 
   async logout(sessionId: string) {

@@ -6,6 +6,7 @@ import {
   UseGuards,
   Req,
   Get,
+  Param,
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
@@ -72,21 +73,21 @@ export class AuthController {
     return await this.authService.getMySession(user.sub);
   }
 
-  // @Get('my-session/:sessionId')
-  // @UseGuards(AuthGuard)
-  // async getSingleSession(@Param('sessionId') sessionId: string) {
-  //   return await this.authService.getSingleSession(sessionId);
-  // }
+  @Get('my-session/:sessionId')
+  @UseGuards(AuthGuard)
+  async getSingleSession(@Param('sessionId') sessionId: string) {
+    return await this.authService.getSingleSession(sessionId);
+  }
 
-  // @Post('logout')
-  // @UseGuards(AuthGuard)
-  // async logout(@CurrentUser() user: AuthUser) {
-  //   return await this.authService.logout(user.sessionId);
-  // }
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  async logout(@CurrentUser() user: AuthUser) {
+    return await this.authService.logout(user.sessionId);
+  }
 
-  // @Post('logout-all')
-  // @UseGuards(AuthGuard)
-  // async logoutAll(@CurrentUser() user: AuthUser) {
-  //   return await this.authService.logoutAll(user.sub);
-  // }
+  @Post('logout-all')
+  @UseGuards(AuthGuard)
+  async logoutAll(@CurrentUser() user: AuthUser) {
+    return await this.authService.logoutAll(user.sub);
+  }
 }
